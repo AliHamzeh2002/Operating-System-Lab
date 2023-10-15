@@ -125,6 +125,7 @@ panic(char *s)
 
 //PAGEBREAK: 50
 #define BACKSPACE 0x100
+#define CLEAR 0x101
 #define CRTPORT 0x3d4
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
 
@@ -143,8 +144,21 @@ cgaputc(int c)
     pos += 80 - pos%80;
   else if(c == BACKSPACE){
     if(pos > 0) --pos;
-  } else
+
+  }
+  else if(c == CLEAR){
+    char blank = ' ';
+    while (pos != 0){
+      crt[--pos] = (blank) | 0x0700;
+    }
+  } 
+  else if(c == 'q'){
+    if (crt[pos + 1] == (' ' | 0x0700))
+      crt[pos++] = ('A'&0xff) | 0x0700;
+  }
+  else{
     crt[pos++] = (c&0xff) | 0x0700;  // black on white
+  }
 
   if(pos < 0 || pos > 25*80)
     panic("pos under/overflow");
@@ -212,6 +226,12 @@ consoleintr(int (*getc)(void))
         input.e--;
         consputc(BACKSPACE);
       }
+      break;
+    case C('L'):
+      input.w = input.e;
+      consputc(CLEAR);
+      consputc('$');
+      consputc(' ');
       break;
     default:
       if(c != 0 && input.e-input.r < INPUT_BUF){
