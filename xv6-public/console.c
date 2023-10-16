@@ -127,6 +127,7 @@ panic(char *s)
 #define BACKSPACE 0x100
 #define CLEAR 0x101
 #define MOVE_LEFT 0x102
+#define GO_END_OF_LINE 0x103
 #define CRTPORT 0x3d4
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
 
@@ -169,6 +170,9 @@ cgaputc(int c)
   else if(c == MOVE_LEFT){
     pos --;
   }
+  else if(c == GO_END_OF_LINE){
+    pos += input.end - input.e;
+  }
   else{
     if (input.end != input.e){
       for (int i = pos + (input.end - input.e); i > pos; i--)
@@ -176,7 +180,6 @@ cgaputc(int c)
     }
     
     crt[pos++] = (c&0xff) | 0x0700;  // black on white
-    //crt[pos] = ' ' | 0x0700;
   }
 
   if(pos < 0 || pos > 25*80)
@@ -229,6 +232,8 @@ consoleintr(int (*getc)(void))
       doprocdump = 1;
       break;
     case C('U'):  // Kill line.
+      consputc(GO_END_OF_LINE);
+      input.e = input.end;
       while(input.e != input.w &&
             input.buf[(input.e-1) % INPUT_BUF] != '\n'){
         input.e--;
