@@ -192,7 +192,7 @@ cgaputc(int c)
   outb(CRTPORT+1, pos>>8);
   outb(CRTPORT, 15);
   outb(CRTPORT+1, pos);
-  if (c == BACKSPACE && input.end == input.e)
+  if (input.end == input.e && c != CLEAR)
     crt[pos] = ' ' | 0x0700;
 }
 
