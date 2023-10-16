@@ -128,7 +128,7 @@ panic(char *s)
 #define CLEAR 0x101
 #define MOVE_LEFT 0x102
 #define MOVE_RIGHT 0x103
-#define GO_END_OF_LINE 0x103
+#define GO_END_OF_LINE 0x104
 #define CRTPORT 0x3d4
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
 
@@ -226,6 +226,31 @@ consputc(int c)
 
 #define C(x)  ((x)-'@')  // Control-x
 
+#define MAX_HISTORY 10
+
+struct {
+  char recent_cmds[MAX_HISTORY][INPUT_BUF];
+  ushort first;
+  ushort cur;
+  ushort size;
+} cmd_history;
+
+void
+push_command_to_history(){
+  ushort last_idx = (cmd_history.first + cmd_history.size) % MAX_HISTORY;
+  if (cmd_history.size == MAX_HISTORY){
+    cmd_history.first ++;
+  }
+  for (int i = input.w; i < input.end; i++){
+    cmd_history.recent_cmds[last_idx][i - input.w] = input.buf[i % INPUT_BUF];
+  }
+  //cmd_history.recent_cmds[last_idx][input.end - input.w - 1] = '\n';
+  if (cmd_history.size < MAX_HISTORY){
+    cmd_history.size ++;
+  }
+  cmd_history.cur = (cmd_history.size + cmd_history.first) % MAX_HISTORY;
+}
+
 void
 consoleintr(int (*getc)(void))
 {
@@ -252,7 +277,7 @@ consoleintr(int (*getc)(void))
       if(input.e != input.w){
         input.e--;
         for (int i = input.e ; i < input.end; i++){
-          input.buf[i] = input.buf[i + 1];
+          input.buf[i % INPUT_BUF] = input.buf[(i + 1) % INPUT_BUF];
         }
         input.end--;
         consputc(BACKSPACE);
@@ -280,30 +305,83 @@ consoleintr(int (*getc)(void))
       consputc(MOVE_RIGHT);
       }
       break;
+    case C('N'):
+      if (cmd_history.cur == cmd_history.first){
+        break;
+      }
+      consputc(GO_END_OF_LINE);
+      input.e = input.end;
+      while(input.e != input.w &&
+            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+        input.e--;
+        input.end--;
+        consputc(BACKSPACE);
+      }
+      if ((cmd_history.cur - 1) % MAX_HISTORY != (cmd_history.first - 1) % MAX_HISTORY){
+        cmd_history.cur --;
+        cmd_history.cur %= MAX_HISTORY;
+      }
+      char* last_cmd = cmd_history.recent_cmds[cmd_history.cur];
+      for (int i = 0; i < INPUT_BUF; i++){
+        if (last_cmd[i] == '\n' || last_cmd[i] == C('D'))
+          break;
+        input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
+        input.end++;
+        consputc(last_cmd[i]);
+      }
+      
+      break;
+
+    case C('M'):
+      if (cmd_history.cur == cmd_history.first + cmd_history.size){
+        break;
+      }
+      consputc(GO_END_OF_LINE);
+      input.e = input.end;
+      while(input.e != input.w &&
+            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+        input.e--;
+        input.end--;
+        consputc(BACKSPACE);
+      }
+      cmd_history.cur ++;
+      cmd_history.cur %= MAX_HISTORY;
+      if ((cmd_history.cur) % MAX_HISTORY != (cmd_history.first + cmd_history.size) % MAX_HISTORY){
+        last_cmd = cmd_history.recent_cmds[cmd_history.cur];
+        for (int i = 0; i < INPUT_BUF; i++){
+          if (last_cmd[i] == '\n' || last_cmd[i] == C('D'))
+            break;
+          input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
+          input.end++;
+          consputc(last_cmd[i]);
+        }
+      }
+      
+      
+      break;
     
 
     default:
       if(c != 0 && input.end-input.r < INPUT_BUF){
         if (input.end != input.e && c!='\n'){
           for (int i = input.end; i > input.e; i--){
-              input.buf[i] = input.buf[i - 1];
+              input.buf[i % INPUT_BUF] = input.buf[(i - 1) % INPUT_BUF];
             }
-          }
+        }
         c = (c == '\r') ? '\n' : c;
-        if (c == '\n'){
+        if(c == '\n' || c == C('D') || input.end == input.r+INPUT_BUF){
           input.buf[input.end++ % INPUT_BUF] = c;
+          push_command_to_history();
           input.e = input.end;
-          consputc(c);
+          input.w = input.e;
+          wakeup(&input.r);
         }
         else{
           input.buf[input.e++ % INPUT_BUF] = c;
           input.end++;
-          consputc(c);
         }
-        if(c == '\n' || c == C('D') || input.end == input.r+INPUT_BUF){
-          input.w = input.e;
-          wakeup(&input.r);
-        }   
+        consputc(c);   
+
       }
       break;
     }
