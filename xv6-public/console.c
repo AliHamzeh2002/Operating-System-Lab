@@ -129,6 +129,8 @@ panic(char *s)
 #define MOVE_LEFT 0x102
 #define MOVE_RIGHT 0x103
 #define GO_END_OF_LINE 0x104
+#define ARROW_UP 0xE3
+#define ARROW_DOWN 0xE2
 #define CRTPORT 0x3d4
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
 
@@ -305,7 +307,7 @@ consoleintr(int (*getc)(void))
       consputc(MOVE_RIGHT);
       }
       break;
-    case C('N'):
+    case ARROW_DOWN:
       if (cmd_history.cur == cmd_history.first){
         break;
       }
@@ -332,7 +334,7 @@ consoleintr(int (*getc)(void))
       
       break;
 
-    case C('M'):
+    case ARROW_UP:
       if (cmd_history.cur == cmd_history.first + cmd_history.size){
         break;
       }
