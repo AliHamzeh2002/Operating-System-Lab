@@ -256,13 +256,25 @@ push_command_to_history(){
 void
 kill_line(){
   consputc(GO_END_OF_LINE);
-      input.e = input.end;
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        input.end--;
-        consputc(BACKSPACE);
-      }
+  input.e = input.end;
+  while(input.e != input.w &&
+        input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+    input.e--;
+    input.end--;
+    consputc(BACKSPACE);
+  }
+}
+
+void remove_char(){
+  if(input.e == input.w){
+    return;
+  }
+  input.e--;
+  for (int i = input.e ; i < input.end; i++){
+    input.buf[i % INPUT_BUF] = input.buf[(i + 1) % INPUT_BUF];
+  }
+  input.end--;
+  consputc(BACKSPACE);
 }
 
 void
@@ -282,18 +294,9 @@ consoleintr(int (*getc)(void))
       break;
 
     case C('H'): case '\x7f':  // Backspace
-      if(input.e != input.w){
-        input.e--;
-        for (int i = input.e ; i < input.end; i++){
-          input.buf[i % INPUT_BUF] = input.buf[(i + 1) % INPUT_BUF];
-        }
-        input.end--;
-        consputc(BACKSPACE);
-        
-      }
-      
-
+      remove_char();
       break;
+
     case C('L'):
       input.w = input.e;
       input.end = input.e;
