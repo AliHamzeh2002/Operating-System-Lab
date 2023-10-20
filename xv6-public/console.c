@@ -281,10 +281,50 @@ remove_char(){
 void 
 clear_screen(){
   input.w = input.e;
-      input.end = input.e;
-      consputc(CLEAR);
-      consputc('$');
-      consputc(' ');
+  input.end = input.e;
+  consputc(CLEAR);
+  consputc('$');
+  consputc(' ');
+}
+
+void
+show_prev_command(){
+  if (cmd_history.cur == cmd_history.first){
+        return;
+  }
+  kill_line();
+  if ((cmd_history.cur - 1) % MAX_HISTORY != (cmd_history.first - 1) % MAX_HISTORY){
+    cmd_history.cur --;
+    cmd_history.cur %= MAX_HISTORY;
+  }
+  char* last_cmd = cmd_history.recent_cmds[cmd_history.cur];
+  for (int i = 0; i < INPUT_BUF; i++){
+    if (last_cmd[i] == '\n' || last_cmd[i] == C('D'))
+      break;
+    input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
+    input.end++;
+    consputc(last_cmd[i]);
+  }
+}
+
+void
+show_next_command(){
+  if (cmd_history.cur == cmd_history.first + cmd_history.size){
+        return;
+  }
+  kill_line();
+  cmd_history.cur ++;
+  cmd_history.cur %= MAX_HISTORY;
+  if ((cmd_history.cur) % MAX_HISTORY != (cmd_history.first + cmd_history.size) % MAX_HISTORY){
+    char* last_cmd = cmd_history.recent_cmds[cmd_history.cur];
+    for (int i = 0; i < INPUT_BUF; i++){
+      if (last_cmd[i] == '\n' || last_cmd[i] == C('D'))
+        break;
+      input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
+      input.end++;
+      consputc(last_cmd[i]);
+    }
+  }     
 }
 
 void
@@ -307,61 +347,30 @@ consoleintr(int (*getc)(void))
       remove_char();
       break;
 
-    case C('L'):
+    case C('L'): // Clear screen
       clear_screen();
       break;
       
-    case C('B'):
+    case C('B'): // Cursor go backward
       if (input.e > input.w){
         input.e--;
         consputc(MOVE_LEFT);
       }
       break;
-    case C('F'):
+
+    case C('F'): // Cursor go forward
       if (input.e < input.end){
         input.e++;
       consputc(MOVE_RIGHT);
       }
       break;
-    case ARROW_UP:
-      if (cmd_history.cur == cmd_history.first){
-        break;
-      }
-      kill_line();
-      if ((cmd_history.cur - 1) % MAX_HISTORY != (cmd_history.first - 1) % MAX_HISTORY){
-        cmd_history.cur --;
-        cmd_history.cur %= MAX_HISTORY;
-      }
-      char* last_cmd = cmd_history.recent_cmds[cmd_history.cur];
-      for (int i = 0; i < INPUT_BUF; i++){
-        if (last_cmd[i] == '\n' || last_cmd[i] == C('D'))
-          break;
-        input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
-        input.end++;
-        consputc(last_cmd[i]);
-      }
-      
+
+    case ARROW_UP: // Show prev command
+      show_prev_command();
       break;
 
-    case ARROW_DOWN:
-      if (cmd_history.cur == cmd_history.first + cmd_history.size){
-        break;
-      }
-      kill_line();
-      cmd_history.cur ++;
-      cmd_history.cur %= MAX_HISTORY;
-      if ((cmd_history.cur) % MAX_HISTORY != (cmd_history.first + cmd_history.size) % MAX_HISTORY){
-        last_cmd = cmd_history.recent_cmds[cmd_history.cur];
-        for (int i = 0; i < INPUT_BUF; i++){
-          if (last_cmd[i] == '\n' || last_cmd[i] == C('D'))
-            break;
-          input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
-          input.end++;
-          consputc(last_cmd[i]);
-        }
-      }
-      
-      
+    case ARROW_DOWN: //Show next command
+      show_next_command();
       break;
     
 
