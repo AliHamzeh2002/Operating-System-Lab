@@ -254,6 +254,18 @@ push_command_to_history(){
 }
 
 void
+kill_line(){
+  consputc(GO_END_OF_LINE);
+      input.e = input.end;
+      while(input.e != input.w &&
+            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
+        input.e--;
+        input.end--;
+        consputc(BACKSPACE);
+      }
+}
+
+void
 consoleintr(int (*getc)(void))
 {
   int c, doprocdump = 0;
@@ -266,15 +278,9 @@ consoleintr(int (*getc)(void))
       doprocdump = 1;
       break;
     case C('U'):  // Kill line.
-      consputc(GO_END_OF_LINE);
-      input.e = input.end;
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        input.end--;
-        consputc(BACKSPACE);
-      }
+      kill_line();
       break;
+
     case C('H'): case '\x7f':  // Backspace
       if(input.e != input.w){
         input.e--;
@@ -311,14 +317,7 @@ consoleintr(int (*getc)(void))
       if (cmd_history.cur == cmd_history.first){
         break;
       }
-      consputc(GO_END_OF_LINE);
-      input.e = input.end;
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        input.end--;
-        consputc(BACKSPACE);
-      }
+      kill_line();
       if ((cmd_history.cur - 1) % MAX_HISTORY != (cmd_history.first - 1) % MAX_HISTORY){
         cmd_history.cur --;
         cmd_history.cur %= MAX_HISTORY;
@@ -338,14 +337,7 @@ consoleintr(int (*getc)(void))
       if (cmd_history.cur == cmd_history.first + cmd_history.size){
         break;
       }
-      consputc(GO_END_OF_LINE);
-      input.e = input.end;
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        input.end--;
-        consputc(BACKSPACE);
-      }
+      kill_line();
       cmd_history.cur ++;
       cmd_history.cur %= MAX_HISTORY;
       if ((cmd_history.cur) % MAX_HISTORY != (cmd_history.first + cmd_history.size) % MAX_HISTORY){
