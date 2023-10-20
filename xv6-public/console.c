@@ -140,7 +140,7 @@ struct {
   uint r;  // Read index
   uint w;  // Write index
   uint e;  // Edit index
-  uint end;
+  uint end; // End index
 } input;
 
 static void
@@ -158,7 +158,7 @@ cgaputc(int c)
     pos += 80 - pos%80;
   else if(c == BACKSPACE){
     if(pos > 0) --pos;
-    for (int i = pos ; i < pos + (input.end - input.e); i++){
+    for (int i = pos ; i < pos + (input.end - input.e); i++){ // Shift left
       crt[i] = crt[i + 1];
     }
     crt[pos + input.end - input.e] = ' ' | 0x0700;
@@ -183,11 +183,10 @@ cgaputc(int c)
     pos += input.end - input.e;
   }
   else{
-    if (input.end != input.e){
-      for (int i = pos + (input.end - input.e); i > pos; i--)
-        crt[i] = crt[i - 1];
+    for (int i = pos + (input.end - input.e); i > pos; i--){ // Shfit right
+      crt[i] = crt[i - 1];
     }
-    
+
     crt[pos++] = (c&0xff) | 0x0700;  // black on white
   }
 
@@ -317,7 +316,7 @@ remove_char(){
     return;
   }
   input.e--;
-  for (int i = input.e ; i < input.end; i++){
+  for (int i = input.e ; i < input.end; i++){ // Shift left
     input.buf[i % INPUT_BUF] = input.buf[(i + 1) % INPUT_BUF];
   }
   input.end--;
@@ -380,9 +379,9 @@ consoleintr(int (*getc)(void))
       break;
     
 
-    default:
+    default: // Add a normal character
       if(c != 0 && input.end-input.r < INPUT_BUF){
-        if (input.end != input.e && c!='\n'){
+        if (input.end != input.e && c != '\n'){ //Shift right
           for (int i = input.end; i > input.e; i--){
               input.buf[i % INPUT_BUF] = input.buf[(i - 1) % INPUT_BUF];
             }
