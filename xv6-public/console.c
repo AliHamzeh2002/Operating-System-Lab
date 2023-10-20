@@ -229,29 +229,14 @@ consputc(int c)
 #define C(x)  ((x)-'@')  // Control-x
 
 #define MAX_HISTORY 10
+#define MAX_HISTORY_PLUS (MAX_HISTORY + 1)
 
 struct {
-  char recent_cmds[MAX_HISTORY][INPUT_BUF];
+  char recent_cmds[MAX_HISTORY_PLUS][INPUT_BUF];
   ushort first;
   ushort cur;
   ushort size;
 } cmd_history;
-
-void
-push_command_to_history(){
-  ushort last_idx = (cmd_history.first + cmd_history.size) % MAX_HISTORY;
-  if (cmd_history.size == MAX_HISTORY){
-    cmd_history.first ++;
-  }
-  for (int i = input.w; i < input.end; i++){
-    cmd_history.recent_cmds[last_idx][i - input.w] = input.buf[i % INPUT_BUF];
-  }
-  //cmd_history.recent_cmds[last_idx][input.end - input.w - 1] = '\n';
-  if (cmd_history.size < MAX_HISTORY){
-    cmd_history.size ++;
-  }
-  cmd_history.cur = (cmd_history.size + cmd_history.first) % MAX_HISTORY;
-}
 
 void
 kill_line(){
@@ -264,6 +249,67 @@ kill_line(){
     consputc(BACKSPACE);
   }
 }
+
+void
+push_command_to_history(){
+  if (input.end == input.w + 1)
+    return;
+  ushort last_idx = (cmd_history.first + cmd_history.size) % MAX_HISTORY_PLUS;
+  if (cmd_history.size == MAX_HISTORY){
+    cmd_history.first ++;
+    cmd_history.first %= (MAX_HISTORY_PLUS);
+  }
+  for (int i = input.w; i < input.end; i++){
+    cmd_history.recent_cmds[last_idx][i - input.w] = input.buf[i % INPUT_BUF];
+  }
+  if (cmd_history.size < MAX_HISTORY){
+    cmd_history.size ++;
+  }
+  cmd_history.cur = (cmd_history.size + cmd_history.first) % MAX_HISTORY_PLUS;
+}
+
+void
+show_prev_command(){
+  if (cmd_history.cur == cmd_history.first){
+        return;
+  }
+  kill_line();
+  if ((cmd_history.cur - 1) % MAX_HISTORY_PLUS != (cmd_history.first - 1) % MAX_HISTORY_PLUS){
+    cmd_history.cur --;
+    cmd_history.cur %= MAX_HISTORY_PLUS;
+  }
+  char* last_cmd = cmd_history.recent_cmds[cmd_history.cur];
+  for (int i = 0; i < INPUT_BUF; i++){
+    if (last_cmd[i] == '\n' || last_cmd[i] == C('D')){
+      break;
+    }
+    input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
+    input.end++;
+    consputc(last_cmd[i]);
+  }
+}
+
+void
+show_next_command(){
+  if (cmd_history.cur == (cmd_history.first + cmd_history.size) % MAX_HISTORY_PLUS){
+        return;
+  }
+  kill_line();
+  cmd_history.cur ++;
+  cmd_history.cur %= MAX_HISTORY_PLUS;
+  if (cmd_history.cur == (cmd_history.first + cmd_history.size) % MAX_HISTORY_PLUS){
+    return;
+  }
+  char* last_cmd = cmd_history.recent_cmds[cmd_history.cur];
+  for (int i = 0; i < INPUT_BUF; i++){
+    if (last_cmd[i] == '\n' || last_cmd[i] == C('D')){
+      break;
+    }
+    input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
+    input.end++;
+    consputc(last_cmd[i]);
+  }
+}  
 
 void 
 remove_char(){
@@ -285,46 +331,6 @@ clear_screen(){
   consputc(CLEAR);
   consputc('$');
   consputc(' ');
-}
-
-void
-show_prev_command(){
-  if (cmd_history.cur == cmd_history.first){
-        return;
-  }
-  kill_line();
-  if ((cmd_history.cur - 1) % MAX_HISTORY != (cmd_history.first - 1) % MAX_HISTORY){
-    cmd_history.cur --;
-    cmd_history.cur %= MAX_HISTORY;
-  }
-  char* last_cmd = cmd_history.recent_cmds[cmd_history.cur];
-  for (int i = 0; i < INPUT_BUF; i++){
-    if (last_cmd[i] == '\n' || last_cmd[i] == C('D'))
-      break;
-    input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
-    input.end++;
-    consputc(last_cmd[i]);
-  }
-}
-
-void
-show_next_command(){
-  if (cmd_history.cur == cmd_history.first + cmd_history.size){
-        return;
-  }
-  kill_line();
-  cmd_history.cur ++;
-  cmd_history.cur %= MAX_HISTORY;
-  if ((cmd_history.cur) % MAX_HISTORY != (cmd_history.first + cmd_history.size) % MAX_HISTORY){
-    char* last_cmd = cmd_history.recent_cmds[cmd_history.cur];
-    for (int i = 0; i < INPUT_BUF; i++){
-      if (last_cmd[i] == '\n' || last_cmd[i] == C('D'))
-        break;
-      input.buf[input.e++ % INPUT_BUF] = last_cmd[i];
-      input.end++;
-      consputc(last_cmd[i]);
-    }
-  }     
 }
 
 void
