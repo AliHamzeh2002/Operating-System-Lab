@@ -265,7 +265,8 @@ kill_line(){
   }
 }
 
-void remove_char(){
+void 
+remove_char(){
   if(input.e == input.w){
     return;
   }
@@ -275,6 +276,15 @@ void remove_char(){
   }
   input.end--;
   consputc(BACKSPACE);
+}
+
+void 
+clear_screen(){
+  input.w = input.e;
+      input.end = input.e;
+      consputc(CLEAR);
+      consputc('$');
+      consputc(' ');
 }
 
 void
@@ -298,12 +308,9 @@ consoleintr(int (*getc)(void))
       break;
 
     case C('L'):
-      input.w = input.e;
-      input.end = input.e;
-      consputc(CLEAR);
-      consputc('$');
-      consputc(' ');
+      clear_screen();
       break;
+      
     case C('B'):
       if (input.e > input.w){
         input.e--;
