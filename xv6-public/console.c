@@ -326,6 +326,8 @@ remove_char(){
 void 
 clear_screen(){
   input.w = input.e;
+  input.r = input.w;
+
   input.end = input.e;
   consputc(CLEAR);
   consputc('$');
