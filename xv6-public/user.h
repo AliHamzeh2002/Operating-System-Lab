@@ -23,6 +23,7 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int find_digital_root(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

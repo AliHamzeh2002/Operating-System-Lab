@@ -89,3 +89,23 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+static int
+find_digital_root(int n){
+  if (n <= 0)
+    return -1;
+  while (n > 9){
+    int new_n = 0;
+    while (n != 0){
+      new_n += n % 10;
+      n /= 10;
+    }
+    n = new_n;
+  }
+  return n;
+}
+
+int
+sys_find_digital_root(void){
+  return find_digital_root(myproc()->tf->ebx);
+}

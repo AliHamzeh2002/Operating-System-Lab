@@ -183,6 +183,7 @@ UPROGS=\
 	_zombie\
 	_strdiff\
 	_getpidtest\
+	_find_digital_root\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
