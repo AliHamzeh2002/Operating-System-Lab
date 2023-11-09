@@ -442,3 +442,62 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+int
+sys_copy_file(void){
+  char *src, *dest;
+
+  if(argstr(0, &src) < 0 || argstr(1, &dest) < 0)
+    return -1;
+
+
+  begin_op();
+  struct inode *src_ip, *dest_ip;
+  src_ip = namei(src);
+  if (src_ip == 0){
+    end_op();
+    return -1;
+  }
+
+  ilock(src_ip);
+
+  dest_ip = create(dest, T_FILE, 0, 0);
+
+  if(dest_ip == 0){
+    iunlock(src_ip);
+    end_op();
+    return -1;
+  }
+
+  int src_size = src_ip->size;
+  char* buf = kalloc();
+  for (int cur_off = 0; cur_off < src_size; cur_off += BSIZE) {
+    int diff = src_size - cur_off;
+    int read_size = (diff > BSIZE) ? BSIZE : diff; 
+    int read_result = readi(src_ip, buf, cur_off, read_size);
+    if (read_result < 0){
+      iunlockput(dest_ip);
+      iunlock(src_ip);
+      end_op();
+      return -1;
+    }
+    int write_result = writei(dest_ip, buf, cur_off, read_size);
+    if (write_result < 0){
+      iunlockput(dest_ip);
+      iunlock(src_ip);
+      end_op();
+      return -1;
+    }
+  }
+  //cprintf("copy_file: %s -> %s\n", src, dest);
+  dest_ip->size = src_size;
+  iupdate(dest_ip);
+  iunlock(dest_ip);
+  iunlock(src_ip);
+  end_op();
+  kfree(buf);
+
+
+  return 0;
+}
+
