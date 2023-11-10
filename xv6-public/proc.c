@@ -548,5 +548,5 @@ uncle_count(int pid)
       num_of_uncles++;
 
   release(&ptable.lock);
-  return num_of_uncles;
+  return num_of_uncles-1;
 }
