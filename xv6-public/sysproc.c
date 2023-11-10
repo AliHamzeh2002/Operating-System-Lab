@@ -112,5 +112,5 @@ sys_find_digital_root(void){
 
 int
 sys_get_uncle_count(void){
-  return find_digital_root(myproc()->tf->ebx);
+  return uncle_count(myproc()->parent->parent->pid);
 }

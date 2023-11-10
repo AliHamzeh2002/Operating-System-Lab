@@ -532,3 +532,19 @@ procdump(void)
     cprintf("\n");
   }
 }
+
+
+int
+uncle_count(int pid)
+{
+  struct proc *p;
+  char *sp;
+
+  acquire(&ptable.lock);
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(p->parent->pid == pid)
+      return p->pid;
+
+  release(&ptable.lock);
+}
