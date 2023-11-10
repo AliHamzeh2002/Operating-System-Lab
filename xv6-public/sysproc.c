@@ -109,3 +109,8 @@ int
 sys_find_digital_root(void){
   return find_digital_root(myproc()->tf->ebx);
 }
+
+int
+sys_get_uncle_count(void){
+  return find_digital_root(myproc()->tf->ebx);
+}

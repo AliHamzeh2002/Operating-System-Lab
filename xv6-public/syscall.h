@@ -22,5 +22,5 @@
 #define SYS_close  21
 #define SYS_find_digital_root 22
 #define SYS_copy_file 23
-
+#define SYS_get_uncle_count 24
 
