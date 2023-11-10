@@ -539,12 +539,14 @@ uncle_count(int pid)
 {
   struct proc *p;
   char *sp;
+  int num_of_uncles = 0;
 
   acquire(&ptable.lock);
 
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
     if(p->parent->pid == pid)
-      return p->pid;
+      num_of_uncles++;
 
   release(&ptable.lock);
+  return num_of_uncles;
 }
