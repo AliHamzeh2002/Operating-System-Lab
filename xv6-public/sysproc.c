@@ -112,5 +112,8 @@ sys_find_digital_root(void){
 
 int
 sys_get_uncle_count(void){
-  return uncle_count(myproc()->parent->parent->pid);
+  int pid;
+  if (argint(0, &pid) < 0)
+    return -1;
+  return uncle_count(pid);
 }

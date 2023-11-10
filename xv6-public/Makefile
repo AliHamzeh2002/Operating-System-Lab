@@ -185,6 +185,7 @@ UPROGS=\
 	_getpidtest\
 	_find_digital_root\
 	_copy\
+	_test_uncle_count\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
