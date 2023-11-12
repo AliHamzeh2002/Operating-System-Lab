@@ -186,6 +186,7 @@ UPROGS=\
 	_find_digital_root\
 	_copy\
 	_test_uncle_count\
+	_test_find_process_lifetime\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

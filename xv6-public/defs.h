@@ -121,6 +121,7 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 int             uncle_count(int);
+int             find_process_lifetime(int);
 
 
 // swtch.S

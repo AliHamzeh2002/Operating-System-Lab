@@ -117,3 +117,12 @@ sys_get_uncle_count(void){
     return -1;
   return uncle_count(pid);
 }
+
+int
+sys_get_process_lifetime(void){
+    int pid;
+  if (argint(0, &pid) < 0)
+    return -1;
+  return find_process_lifetime(pid);
+
+}

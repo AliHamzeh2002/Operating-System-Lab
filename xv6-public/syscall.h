@@ -23,4 +23,5 @@
 #define SYS_find_digital_root 22
 #define SYS_copy_file 23
 #define SYS_get_uncle_count 24
+#define SYS_get_process_lifetime 25
 

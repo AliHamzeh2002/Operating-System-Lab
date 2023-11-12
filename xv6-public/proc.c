@@ -7,6 +7,8 @@
 #include "proc.h"
 #include "spinlock.h"
 
+#define TICKS_PER_SECOND 100
+
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
@@ -88,6 +90,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->start_time = ticks/TICKS_PER_SECOND;
 
   release(&ptable.lock);
 
@@ -557,4 +560,16 @@ uncle_count(int pid)
 
   release(&ptable.lock);
   return num_of_uncles - 1;
+}
+int
+find_process_lifetime(int pid){
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      break;
+    }
+  }
+  int current_time = ticks / TICKS_PER_SECOND;
+  return (current_time - p->start_time);
+
 }
