@@ -489,7 +489,6 @@ sys_copy_file(void){
       return -1;
     }
   }
-  //cprintf("copy_file: %s -> %s\n", src, dest);
   dest_ip->size = src_size;
   iupdate(dest_ip);
   iunlock(dest_ip);

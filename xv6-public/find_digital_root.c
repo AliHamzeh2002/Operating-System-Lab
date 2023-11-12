@@ -2,7 +2,7 @@
 #include "user.h"
 
 int 
-find_digital_root_syscall(int num){
+find_digital_root_handler(int num){
     int prev_ebx;
 
     asm volatile(
@@ -29,7 +29,7 @@ main(int argc, char* argv[]){
         exit();
     }
     int input = atoi(argv[1]);
-    int result = find_digital_root_syscall(input);
+    int result = find_digital_root_handler(input);
     if (result < 0){
         printf(2, "number should be positive\n");
         exit();
