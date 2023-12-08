@@ -8,6 +8,7 @@
 #include "spinlock.h"
 
 #define TICKS_PER_SECOND 100
+#define DEFAULT_PRIORITY 3
 
 struct {
   struct spinlock lock;
@@ -115,6 +116,18 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+  memset(&p->sched_info, 0, sizeof(p->sched_info));
+  
+  p->sched_info.queue = (p->pid == 1) ? RR : LCFS;
+  p->sched_info.priority = DEFAULT_PRIORITY;
+  p->sched_info.bjf_coeffs.priority_ratio = 1;
+  p->sched_info.arrival_time = ticks;
+  p->sched_info.bjf_coeffs.arrival_time_ratio = 1;
+  p->sched_info.bjf_coeffs.executed_cycles_ratio = 1;
+  p->sched_info.bjf_coeffs.process_size_ratio = 1;
+  p->sched_info.last_run = ticks;
+
+
   return p;
 }
 
@@ -152,6 +165,7 @@ userinit(void)
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;
+  p->sched_info.queue = RR;
 
   release(&ptable.lock);
 }
@@ -314,6 +328,66 @@ wait(void)
   }
 }
 
+struct proc*
+find_next_round_robin(struct proc* last_scheduled){
+  struct proc *p = last_scheduled;
+  do{
+    p++;
+    if (p == &ptable.proc[NPROC]){
+      p = ptable.proc;
+    }
+
+    if (p->state == RUNNABLE && p->sched_info.queue == RR){
+      return p;
+    }
+  } while(p != last_scheduled);
+
+  return 0;
+}
+
+struct proc*
+find_next_lcfs(){
+  struct proc *p;
+  struct proc *last_process = 0;
+  int max_start_time = -1;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->state != RUNNABLE || p->sched_info.queue != LCFS){
+      continue;
+    }
+    if (p->sched_info.arrival_time > max_start_time){
+      max_start_time = p->start_time;
+      last_process = p;
+    }
+  }
+  return last_process;
+}
+
+float
+calc_process_bjf_rank(struct proc* p){
+  return p->sched_info.arrival_time * p->sched_info.bjf_coeffs.arrival_time_ratio +
+         p->sched_info.executed_cycles * p->sched_info.bjf_coeffs.executed_cycles_ratio +
+         p->sched_info.priority * p->sched_info.bjf_coeffs.priority_ratio +
+         p->sz * p->sched_info.bjf_coeffs.process_size_ratio;
+}
+
+struct proc*
+find_next_bjf(){
+  struct proc *p;
+  struct proc *best_job_process = 0;
+  float best_job_rank;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->state != RUNNABLE || p->sched_info.queue != BJF){
+      continue;
+    }
+    float current_job_rank = calc_process_bjf_rank(p);
+    if (best_job_process == 0 || current_job_rank < best_job_rank){
+      best_job_rank = current_job_rank;
+      best_job_process = p;
+    }
+  }
+  return best_job_process;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -326,6 +400,7 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *last_rr_scheduled = &ptable.proc[NPROC - 1];
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -335,24 +410,36 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
+    p = find_next_round_robin(last_rr_scheduled);
+    if (p){
+      last_rr_scheduled = p;
+    } 
+    else {
+      p = find_next_lcfs();
+      if (!p){
+        p = find_next_bjf();
+        if (!p){
+          release(&ptable.lock);
+          continue;
+        }
+      }
     }
+    
+    // Switch to chosen process.  It is the process's job
+    // to release ptable.lock and then reacquire it
+    // before jumping back to us.
+    c->proc = p;
+    switchuvm(p);
+    p->state = RUNNING;
+
+    swtch(&(c->scheduler), p->context);
+    switchkvm();
+
+    // Process is done running for now.
+    // It should have changed its p->state before coming back.
+    c->proc = 0;
+    
     release(&ptable.lock);
 
   }

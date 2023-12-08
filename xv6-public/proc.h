@@ -34,6 +34,25 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+enum scheduling_queue {RR, LCFS, BJF};
+
+struct bjf_info {
+  float priority_ratio;
+  float arrival_time_ratio;
+  float executed_cycles_ratio;
+  float process_size_ratio;
+};
+
+struct scheduling_info {
+  enum scheduling_queue queue;
+  int last_run;
+  int priority;
+  int executed_cycles;
+  int arrival_time;
+  struct bjf_info bjf_coeffs;
+
+};
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -50,6 +69,7 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   uint start_time;
+  struct scheduling_info sched_info;
 };
 
 // Process memory is laid out contiguously, low addresses first:
