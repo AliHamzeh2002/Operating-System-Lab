@@ -47,7 +47,7 @@ struct scheduling_info {
   enum scheduling_queue queue;
   int last_run;
   int priority;
-  int executed_cycles;
+  float executed_cycles;
   int arrival_time;
   struct bjf_info bjf_coeffs;
 

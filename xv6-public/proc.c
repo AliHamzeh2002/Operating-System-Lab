@@ -450,7 +450,6 @@ scheduler(void)
         }
       }
     }
-    p->sched_info.last_run = ticks;
     
     // Switch to chosen process.  It is the process's job
     // to release ptable.lock and then reacquire it
@@ -503,6 +502,8 @@ yield(void)
 {
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE;
+  myproc()->sched_info.last_run = ticks;
+  myproc()->sched_info.executed_cycles += 0.1f;  
   sched();
   release(&ptable.lock);
 }
