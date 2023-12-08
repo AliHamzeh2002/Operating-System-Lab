@@ -120,6 +120,12 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+void            age_processes(void);
+struct proc*    find_next_round_robin(struct proc*);
+struct proc*    find_next_lcfs();
+struct proc*    find_next_bjf();
+enum scheduling_queue change_process_queue(struct proc* , enum scheduling_queue);
+float           calc_process_bjf_rank(struct proc* p);
 int             uncle_count(int);
 int             find_process_lifetime(int);
 

@@ -9,6 +9,7 @@
 
 #define TICKS_PER_SECOND 100
 #define DEFAULT_PRIORITY 3
+#define AGING_THRESHOLD 8000
 
 struct {
   struct spinlock lock;
@@ -345,6 +346,30 @@ find_next_round_robin(struct proc* last_scheduled){
   return 0;
 }
 
+enum scheduling_queue
+change_process_queue(struct proc *p, enum scheduling_queue new_queue){
+  enum scheduling_queue old_queue = p->sched_info.queue;
+  p->sched_info.queue = new_queue;
+  p->sched_info.last_run = ticks;
+  return old_queue;
+}
+
+void
+age_processes(){
+  struct proc *p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if (p->state != RUNNABLE || p->sched_info.queue == RR){
+      continue;
+    }
+    if (ticks - p->sched_info.last_run > AGING_THRESHOLD){
+      cprintf("here");
+      change_process_queue(p, RR);
+    }
+  }
+  release(&ptable.lock);
+}
+
 struct proc*
 find_next_lcfs(){
   struct proc *p;
@@ -425,6 +450,7 @@ scheduler(void)
         }
       }
     }
+    p->sched_info.last_run = ticks;
     
     // Switch to chosen process.  It is the process's job
     // to release ptable.lock and then reacquire it
