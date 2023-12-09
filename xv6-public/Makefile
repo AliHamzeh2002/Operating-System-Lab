@@ -188,6 +188,8 @@ UPROGS=\
 	_test_uncle_count\
 	_test_find_process_lifetime\
 	_change_process_queue\
+	_set_bjf_process\
+	_set_bjf_system\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
