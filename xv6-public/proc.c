@@ -347,12 +347,14 @@ find_next_round_robin(struct proc* last_scheduled){
 }
 
 enum scheduling_queue
-change_process_queue(struct proc *p, enum scheduling_queue new_queue){
+change_queue(struct proc *p, enum scheduling_queue new_queue){
   enum scheduling_queue old_queue = p->sched_info.queue;
   p->sched_info.queue = new_queue;
   p->sched_info.last_run = ticks;
   return old_queue;
 }
+
+
 
 void
 age_processes(){
@@ -364,7 +366,7 @@ age_processes(){
     }
     if (ticks - p->sched_info.last_run > AGING_THRESHOLD){
       cprintf("here");
-      change_process_queue(p, RR);
+      change_queue(p, RR);
     }
   }
   release(&ptable.lock);
@@ -686,4 +688,19 @@ find_process_lifetime(int pid){
   int current_time = ticks / TICKS_PER_SECOND;
   return (current_time - p->start_time);
 
+}
+
+int
+change_process_queue(int pid,int queue_num){
+  struct proc* p;
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      break;
+    }
+  }
+  release(&ptable.lock);
+  int old_queue_num= change_queue(p, queue_num);
+
+  return old_queue_num;
 }

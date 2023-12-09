@@ -34,7 +34,7 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
-enum scheduling_queue {RR, LCFS, BJF};
+enum scheduling_queue {RR = 1,LCFS = 2, BJF = 3};
 
 struct bjf_info {
   float priority_ratio;

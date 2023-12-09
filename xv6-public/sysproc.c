@@ -126,3 +126,15 @@ sys_get_process_lifetime(void){
   return find_process_lifetime(pid);
 
 }
+int
+sys_change_process_queue(void){
+    int pid;
+    int queue_num;
+  if (argint(0, &pid) < 0)
+    return -1;
+  if (argint(1, &queue_num) < 0)
+    return -1;
+  return change_process_queue(pid,queue_num);
+
+}
+

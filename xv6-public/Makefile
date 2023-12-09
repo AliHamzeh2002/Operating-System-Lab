@@ -187,6 +187,7 @@ UPROGS=\
 	_copy\
 	_test_uncle_count\
 	_test_find_process_lifetime\
+	_change_process_queue\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
