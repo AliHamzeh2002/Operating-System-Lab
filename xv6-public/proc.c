@@ -704,3 +704,35 @@ change_process_queue(int pid,int queue_num){
 
   return old_queue_num;
 }
+
+void
+set_bjf_system(float priority_ratio, float arrival_time_ratio, float executed_cycles_ratio)
+{
+  acquire(&ptable.lock);
+  struct proc* p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    p->sched_info.bjf_coeffs.priority_ratio = priority_ratio;
+    p->sched_info.bjf_coeffs.arrival_time_ratio = arrival_time_ratio;
+    p->sched_info.bjf_coeffs.executed_cycle_ratio = executed_cycles_ratio;
+  }
+  release(&ptable.lock);
+}
+
+int
+set_bjf_process(int pid, float priority_ratio, float arrival_time_ratio, float executed_cycles_ratio)
+{
+  acquire(&ptable.lock);
+  struct proc* p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      p->sched_info.bjf_coeffs.priority_ratio = priority_ratio;
+      p->sched_info.bjf_coeffs.arrival_time_ratio = arrival_time_ratio;
+      p->sched_info.bjf_coeffs.executed_cycle_ratio = executed_cycles_ratio;
+      release(&ptable.lock);
+      return 0;
+    }
+  }
+  release(&ptable.lock);
+  return -1;
+}
+
