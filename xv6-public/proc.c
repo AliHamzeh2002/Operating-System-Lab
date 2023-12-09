@@ -677,6 +677,7 @@ uncle_count(int pid)
   release(&ptable.lock);
   return num_of_uncles - 1;
 }
+
 int
 find_process_lifetime(int pid){
   struct proc *p;
