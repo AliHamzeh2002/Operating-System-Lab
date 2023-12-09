@@ -130,7 +130,7 @@ float           calc_process_bjf_rank(struct proc* p);
 int             uncle_count(int);
 int             find_process_lifetime(int);
 int             set_bjf_process(int,float,float,float);
-void             set_bjf_system(float,float,float);
+void            set_bjf_system(float,float,float);
 
 
 // swtch.S

@@ -138,3 +138,32 @@ sys_change_process_queue(void){
 
 }
 
+int
+sys_set_bjf_process(void)
+{
+  int pid;
+  float priority_ratio, arrival_time_ratio, executed_cycle_ratio;
+  if(argint(0, &pid) < 0 ||
+     argfloat(1, &priority_ratio) < 0 ||
+     argfloat(2, &arrival_time_ratio) < 0 ||
+     argfloat(3, &executed_cycle_ratio) < 0){
+    return -1;
+  }
+  return set_bjf_process(pid, priority_ratio, arrival_time_ratio, executed_cycle_ratio);
+}
+
+int
+sys_set_bjf_system(void)
+{
+  int pid;
+  float priority_ratio, arrival_time_ratio, executed_cycle_ratio;
+  if(argint(0, &pid) < 0 ||
+     argfloat(1, &priority_ratio) < 0 ||
+     argfloat(2, &arrival_time_ratio) < 0 ||
+     argfloat(3, &executed_cycle_ratio) < 0){
+    return -1;
+  }
+  set_bjf_system(priority_ratio, arrival_time_ratio, executed_cycle_ratio);
+  return 0;
+}
+

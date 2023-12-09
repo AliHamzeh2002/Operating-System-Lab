@@ -135,7 +135,9 @@ static int (*syscalls[])(void) = {
 [SYS_copy_file]   sys_copy_file,
 [SYS_get_uncle_count]   sys_get_uncle_count,
 [SYS_get_process_lifetime]   sys_get_process_lifetime,
-[SYS_change_process_queue]  sys_change_process_queue,
+[SYS_set_bjf_process]  sys_set_bjf_process,
+[SYS_set_bjf_system]  sys_set_bjf_system,
+
 };
 
 void
