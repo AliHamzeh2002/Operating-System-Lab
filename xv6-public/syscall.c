@@ -108,6 +108,8 @@ extern int sys_copy_file(void);
 extern int sys_get_uncle_count(void);
 extern int sys_get_process_lifetime(void);
 extern int sys_change_process_queue(void);
+extern int sys_set_bjf_process(void);
+extern int sys_set_bjf_system(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
