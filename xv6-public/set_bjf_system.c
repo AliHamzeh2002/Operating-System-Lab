@@ -21,5 +21,6 @@ int main(int argc,char* argv[]){
             printf(1,"not enough params");
             exit();
         }
-        set_system_bjf(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
+    set_system_bjf(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
+    exit();
 }
