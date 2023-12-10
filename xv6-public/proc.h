@@ -50,7 +50,6 @@ struct scheduling_info {
   float executed_cycles;
   int arrival_time;
   struct bjf_info bjf_coeffs;
-
 };
 
 // Per-process state

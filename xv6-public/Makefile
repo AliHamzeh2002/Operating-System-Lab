@@ -191,6 +191,7 @@ UPROGS=\
 	_set_bjf_process\
 	_set_bjf_system\
 	_foo\
+	_schedule_info\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

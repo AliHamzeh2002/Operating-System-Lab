@@ -10,6 +10,7 @@
 #define TICKS_PER_SECOND 100
 #define DEFAULT_PRIORITY 3
 #define AGING_THRESHOLD 8000
+#define TAB "    "
 
 struct {
   struct spinlock lock;
@@ -365,7 +366,6 @@ age_processes(){
       continue;
     }
     if (ticks - p->sched_info.last_run > AGING_THRESHOLD){
-      cprintf("here");
       change_queue(p, RR);
     }
   }
@@ -459,6 +459,7 @@ scheduler(void)
     c->proc = p;
     switchuvm(p);
     p->state = RUNNING;
+    p->sched_info.executed_cycles += 0.1f;
 
     swtch(&(c->scheduler), p->context);
     switchkvm();
@@ -505,7 +506,6 @@ yield(void)
   acquire(&ptable.lock);  //DOC: yieldlock
   myproc()->state = RUNNABLE;
   myproc()->sched_info.last_run = ticks;
-  myproc()->sched_info.executed_cycles += 0.1f;  
   sched();
   release(&ptable.lock);
 }
@@ -735,5 +735,88 @@ set_bjf_process(int pid, int priority_ratio, int arrival_time_ratio, int execute
   }
   release(&ptable.lock);
   return -1;
+}
+
+int
+digitcount(int num)
+{
+  if(num == 0) return 1;
+  int count = 0;
+  while(num){
+    num /= 10;
+    ++count;
+  }
+  return count;
+}
+
+void
+printspaces(int count)
+{
+  for(int i = 0; i < count; ++i)
+    cprintf(" ");
+}
+
+void
+print_schedule_info(void){
+ static char *states[] = {
+  [UNUSED]    "unused",
+  [EMBRYO]    "embryo",
+  [SLEEPING]  "sleeping",
+  [RUNNABLE]  "runnable",
+  [RUNNING]   "running",
+  [ZOMBIE]    "zombie"
+  };
+
+  static int columns[] = {16, 8, 9, 8, 8, 8, 8, 9, 8, 8, 8, 8};
+  cprintf("Process_Name    PID     State    Queue   Cycle   Arrival  Priority R_Prty  R_Arvl  R_Exec  R_Size  Rank\n"
+          "------------------------------------------------------------------------------------------------------\n");
+
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->state == UNUSED)
+      continue;
+
+    const char* state;
+    if(p->state >= 0 && p->state < NELEM(states) && states[p->state])
+      state = states[p->state];
+    else
+      state = "???";
+
+    cprintf("%s", p->name);
+    printspaces(columns[0] - strlen(p->name));
+
+    cprintf("%d", p->pid);
+    printspaces(columns[1] - digitcount(p->pid));
+
+    cprintf("%s", state);
+    printspaces(columns[2] - strlen(state));
+
+    cprintf("%d", p->sched_info.queue);
+    printspaces(columns[3] - digitcount(p->sched_info.queue));
+
+    cprintf("%d", (int)p->sched_info.executed_cycles);
+    printspaces(columns[4] - digitcount((int)p->sched_info.executed_cycles));
+
+    cprintf("%d", p->sched_info.arrival_time);
+    printspaces(columns[5] - digitcount(p->sched_info.arrival_time));
+
+    cprintf("%d", p->sched_info.priority);
+    printspaces(columns[6] - digitcount(p->sched_info.priority));
+
+    cprintf("%d", (int)p->sched_info.bjf_coeffs.priority_ratio);
+    printspaces(columns[7] - digitcount((int)p->sched_info.bjf_coeffs.priority_ratio));
+
+    cprintf("%d", (int)p->sched_info.bjf_coeffs.arrival_time_ratio);
+    printspaces(columns[8] - digitcount((int)p->sched_info.bjf_coeffs.arrival_time_ratio));
+
+    cprintf("%d", (int)p->sched_info.bjf_coeffs.executed_cycles_ratio);
+    printspaces(columns[9] - digitcount((int)p->sched_info.bjf_coeffs.executed_cycles_ratio));
+
+    cprintf("%d", (int)p->sched_info.bjf_coeffs.process_size_ratio);
+    printspaces(columns[10] - digitcount((int)p->sched_info.bjf_coeffs.process_size_ratio));
+
+    cprintf("%d", (int)calc_process_bjf_rank(p));
+    cprintf("\n");
+  }
 }
 

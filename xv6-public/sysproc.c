@@ -165,3 +165,9 @@ sys_set_bjf_system(void)
   return 0;
 }
 
+int
+sys_print_schedule_info(void){
+  print_schedule_info();
+  return 0;
+}
+

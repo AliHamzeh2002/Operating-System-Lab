@@ -28,8 +28,9 @@ int copy_file(const char* src, const char* dest);
 int get_uncle_count(int pid);
 int get_process_lifetime(int pid);
 int change_process_queue(int pid,int queue_num);
-int set_bjf_system(int , int , int);
-int set_bjf_process(int,int , int , int);
+int set_bjf_system(int, int, int);
+int set_bjf_process(int, int, int, int);
+void print_schedule_info(void);
 
 
 // ulib.c

@@ -131,6 +131,7 @@ int             uncle_count(int);
 int             find_process_lifetime(int);
 int             set_bjf_process(int,int,int,int);
 void            set_bjf_system(int,int,int);
+void            print_schedule_info(void);
 
 
 // swtch.S
