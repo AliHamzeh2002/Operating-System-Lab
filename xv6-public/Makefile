@@ -190,6 +190,7 @@ UPROGS=\
 	_change_process_queue\
 	_set_bjf_process\
 	_set_bjf_system\
+	_foo\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
