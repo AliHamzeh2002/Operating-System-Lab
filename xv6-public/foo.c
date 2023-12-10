@@ -16,6 +16,7 @@ int main(int argc, char* argv[]){
             }
             break;
         }
+        //while(1);
     }
     while (wait() != -1);
     exit();

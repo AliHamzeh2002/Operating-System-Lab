@@ -9,8 +9,7 @@
 
 #define TICKS_PER_SECOND 100
 #define DEFAULT_PRIORITY 3
-#define AGING_THRESHOLD 8000
-#define TAB "    "
+#define AGING_THRESHOLD 300
 
 struct {
   struct spinlock lock;
@@ -376,13 +375,13 @@ struct proc*
 find_next_lcfs(){
   struct proc *p;
   struct proc *last_process = 0;
-  int max_start_time = -1;
+  int max_arrival_time = -1;
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if (p->state != RUNNABLE || p->sched_info.queue != LCFS){
       continue;
     }
-    if (p->sched_info.arrival_time > max_start_time){
-      max_start_time = p->start_time;
+    if (p->sched_info.arrival_time > max_arrival_time){
+      max_arrival_time = p->sched_info.arrival_time;
       last_process = p;
     }
   }
