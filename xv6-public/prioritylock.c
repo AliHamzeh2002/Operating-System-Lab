@@ -21,11 +21,15 @@ initprioritylock(struct prioritylock *lk, char *name){
 void
 add_process_to_priority_lock(struct prioritylock *lk, int pid){
     lk->queue_size++;
-    uint last_idx = (lk->queue_size + lk->queue_front) % MAX_PRIORITY_QUEUE_SIZE;
+    int last_idx = (lk->queue_size + lk->queue_front) % MAX_PRIORITY_QUEUE_SIZE;
     lk->queue[last_idx] = pid;
-    if (lk->queue[last_idx] > lk->queue[lk->queue_front]){
-        lk->queue[last_idx] = lk->queue[lk->queue_front];
-        lk->queue[lk->queue_front] = pid;
+    for (int i = last_idx; i < lk->queue_front; i++){
+        if (lk->queue[i - 1] > lk->queue[i]){
+            break;
+        }
+        int temp = lk->queue[i];
+        lk->queue[i] = lk->queue[i - 1];
+        lk->queue[i - 1] = temp;
     }
 }
 
@@ -33,13 +37,6 @@ void
 pop_priority_queue(struct prioritylock *lk){
     lk->queue_front = (lk->queue_front + 1) % MAX_PRIORITY_QUEUE_SIZE;
     lk->queue_size--;
-    for (int i = lk->queue_front; i < lk->queue_size; i++){
-        if(lk->queue[i] > lk->queue[lk->queue_front]){
-            int temp = lk->queue[i];
-            lk->queue[i] = lk->queue[lk->queue_front];
-            lk->queue[lk->queue_front] = temp;
-        }
-    }
 }
 
 void
