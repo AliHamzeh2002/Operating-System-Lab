@@ -9,7 +9,7 @@
 
 #define TICKS_PER_SECOND 100
 #define DEFAULT_PRIORITY 3
-#define AGING_THRESHOLD 300
+#define AGING_THRESHOLD 8000
 
 struct {
   struct spinlock lock;
@@ -119,7 +119,7 @@ found:
 
   memset(&p->sched_info, 0, sizeof(p->sched_info));
   
-  p->sched_info.queue = (p->pid == 1) ? RR : LCFS;
+  p->sched_info.queue = (p->pid == 1 || p->pid == 2) ? RR : LCFS;
   p->sched_info.priority = DEFAULT_PRIORITY;
   p->sched_info.bjf_coeffs.priority_ratio = 1;
   p->sched_info.arrival_time = ticks;
