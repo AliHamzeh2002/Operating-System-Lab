@@ -194,6 +194,7 @@ UPROGS=\
 	_foo\
 	_schedule_info\
 	_lock_test\
+	_get_num_syscalls\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

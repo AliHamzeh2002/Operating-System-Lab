@@ -114,6 +114,7 @@ extern int sys_print_schedule_info(void);
 extern int sys_acquire_user_lock(void);
 extern int sys_release_user_lock(void);
 extern int sys_print_queue(void);
+extern int sys_get_num_syscalls(void);
 
 
 static int (*syscalls[])(void) = {
@@ -149,6 +150,7 @@ static int (*syscalls[])(void) = {
 [SYS_acquire_user_lock] sys_acquire_user_lock,
 [SYS_release_user_lock] sys_release_user_lock,
 [SYS_print_queue] sys_print_queue,
+[SYS_get_num_syscalls] sys_get_num_syscalls,
 
 };
 
@@ -157,6 +159,12 @@ syscall(void)
 {
   int num;
   struct proc *curproc = myproc();
+  cli();
+  mycpu()->executed_syscalls ++;
+  sti();
+  executed_syscalls ++;
+  __sync_synchronize();
+
 
   num = curproc->tf->eax;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {

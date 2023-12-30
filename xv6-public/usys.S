@@ -40,3 +40,4 @@ SYSCALL(print_schedule_info)
 SYSCALL(acquire_user_lock);
 SYSCALL(release_user_lock);
 SYSCALL(print_queue);
+SYSCALL(get_num_syscalls);

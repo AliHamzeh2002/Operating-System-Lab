@@ -34,6 +34,7 @@ void print_schedule_info(void);
 int acquire_user_lock(void);
 int release_user_lock(void);
 void print_queue(void);
+int get_num_syscalls(void);
 
 
 

@@ -14,6 +14,7 @@
 struct cpu cpus[NCPU];
 int ncpu;
 uchar ioapicid;
+int executed_syscalls;
 
 static uchar
 sum(uchar *addr, int len)
