@@ -157,8 +157,8 @@ void            initsleeplock(struct sleeplock*, char*);
 void            initprioritylock(struct prioritylock *lk, char *name);
 void            add_process_to_priority_queue(struct prioritylock *lk, int pid);
 void            pop_priority_queue(struct prioritylock *lk);
-void            acquirepriority(struct prioritylock *lk);
-void            releasepriority(struct prioritylock *lk);
+int            acquirepriority(struct prioritylock *lk);
+int            releasepriority(struct prioritylock *lk);
 
 
 

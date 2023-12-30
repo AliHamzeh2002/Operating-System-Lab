@@ -39,7 +39,7 @@ pop_priority_queue(struct prioritylock *lk){
     lk->queue_size--;
 }
 
-void
+int
 acquirepriority(struct prioritylock *lk){
   acquire(&lk->lk);
   add_process_to_priority_lock(lk, myproc()->pid);
@@ -50,17 +50,19 @@ acquirepriority(struct prioritylock *lk){
   lk->pid = myproc()->pid;
   pop_priority_queue(lk);
   release(&lk->lk);
+  return 0;
 }
 
-void
+int
 releasepriority(struct prioritylock *lk){
   acquire(&lk->lk);
   if (lk->pid != myproc()->pid) {
     release(&lk->lk);
-    panic("Process is not the owner of the lock!");
+    return -1;
   }
   lk->locked = 0;
   lk->pid = 0;
   wakeup(lk);
   release(&lk->lk);
+  return 0;
 }
