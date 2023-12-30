@@ -31,8 +31,7 @@ int change_process_queue(int pid,int queue_num);
 int set_bjf_system(int, int, int);
 int set_bjf_process(int, int, int, int);
 void print_schedule_info(void);
-int acquire_priority_lock(void);
-int release_priority_lock(void);
+
 
 
 // ulib.c
