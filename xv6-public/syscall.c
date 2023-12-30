@@ -111,6 +111,9 @@ extern int sys_change_process_queue(void);
 extern int sys_set_bjf_process(void);
 extern int sys_set_bjf_system(void);
 extern int sys_print_schedule_info(void);
+extern int sys_acquire_user_lock(void);
+extern int sys_release_user_lock(void);
+extern int sys_print_queue(void);
 
 
 static int (*syscalls[])(void) = {
@@ -135,7 +138,7 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_find_digital_root]   sys_find_digital_root,
+[SYS_find_digital_root]  sys_find_digital_root,
 [SYS_copy_file]   sys_copy_file,
 [SYS_get_uncle_count]   sys_get_uncle_count,
 [SYS_get_process_lifetime]   sys_get_process_lifetime,
@@ -143,7 +146,9 @@ static int (*syscalls[])(void) = {
 [SYS_set_bjf_process]  sys_set_bjf_process,
 [SYS_set_bjf_system]  sys_set_bjf_system,
 [SYS_print_schedule_info]  sys_print_schedule_info,
-
+[SYS_acquire_user_lock] sys_acquire_user_lock,
+[SYS_release_user_lock] sys_release_user_lock,
+[SYS_print_queue] sys_print_queue,
 
 };
 

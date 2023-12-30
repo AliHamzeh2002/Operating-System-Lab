@@ -28,5 +28,11 @@
 #define SYS_set_bjf_system 27
 #define SYS_set_bjf_process 28
 #define SYS_print_schedule_info 29
+#define SYS_acquire_user_lock 30
+#define SYS_release_user_lock 31
+#define SYS_print_queue 32
+
+
+
 
 

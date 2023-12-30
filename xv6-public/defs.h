@@ -133,6 +133,9 @@ int             find_process_lifetime(int);
 int             set_bjf_process(int,int,int,int);
 void            set_bjf_system(int,int,int);
 void            print_schedule_info(void);
+int             acquire_user_lock(void);
+int             release_user_lock(void);
+void            print_queue(void);
 
 
 // swtch.S
@@ -157,8 +160,9 @@ void            initsleeplock(struct sleeplock*, char*);
 void            initprioritylock(struct prioritylock *lk, char *name);
 void            add_process_to_priority_queue(struct prioritylock *lk, int pid);
 void            pop_priority_queue(struct prioritylock *lk);
-int            acquirepriority(struct prioritylock *lk);
-int            releasepriority(struct prioritylock *lk);
+int             acquirepriority(struct prioritylock *lk);
+int             releasepriority(struct prioritylock *lk);
+void            print_priority_queue(struct prioritylock *lk);
 
 
 

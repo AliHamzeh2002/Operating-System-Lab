@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "prioritylock.h"
 
 #define TICKS_PER_SECOND 100
 #define DEFAULT_PRIORITY 3
@@ -15,6 +16,10 @@ struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 } ptable;
+
+struct {
+  struct prioritylock pl;
+} userlock;
 
 static struct proc *initproc;
 
@@ -28,6 +33,7 @@ void
 pinit(void)
 {
   initlock(&ptable.lock, "ptable");
+  initprioritylock(&userlock.pl, "user lock");
 }
 
 // Must be called with interrupts disabled
@@ -251,6 +257,10 @@ exit(void)
 
   if(curproc == initproc)
     panic("init exiting");
+  
+  if (curproc->pid == userlock.pl.pid){
+    releasepriority(&userlock.pl);
+  }
 
   // Close all open files.
   for(fd = 0; fd < NOFILE; fd++){
@@ -819,3 +829,16 @@ print_schedule_info(void){
   }
 }
 
+int
+acquire_user_lock(void){
+  return acquirepriority(&userlock.pl);
+}
+
+int
+release_user_lock(void){
+  return releasepriority(&userlock.pl);
+}
+
+void print_queue(void){
+  print_priority_queue(&userlock.pl);
+}

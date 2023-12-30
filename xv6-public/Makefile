@@ -193,6 +193,7 @@ UPROGS=\
 	_set_bjf_system\
 	_foo\
 	_schedule_info\
+	_lock_test\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

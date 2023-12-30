@@ -171,4 +171,19 @@ sys_print_schedule_info(void){
   return 0;
 }
 
+int
+sys_acquire_user_lock(void){
+  return acquire_user_lock();
+}
+
+int
+sys_release_user_lock(void){
+  return release_user_lock();
+}
+
+void 
+sys_print_queue(void){
+  print_queue();
+}
+
 

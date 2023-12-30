@@ -5,8 +5,8 @@ struct prioritylock {
   uint locked;       // Is the lock held?
   struct spinlock lk; // spinlock protecting this sleep lock
   int queue[MAX_PRIORITY_QUEUE_SIZE];
-  uint queue_front;
-  uint queue_size;
+  int queue_front;
+  int queue_size;
   
   // For debugging:
   char *name;        // Name of lock.

@@ -37,3 +37,6 @@ SYSCALL(change_process_queue)
 SYSCALL(set_bjf_system)
 SYSCALL(set_bjf_process)
 SYSCALL(print_schedule_info)
+SYSCALL(acquire_user_lock);
+SYSCALL(release_user_lock);
+SYSCALL(print_queue);

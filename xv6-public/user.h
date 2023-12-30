@@ -31,6 +31,9 @@ int change_process_queue(int pid,int queue_num);
 int set_bjf_system(int, int, int);
 int set_bjf_process(int, int, int, int);
 void print_schedule_info(void);
+int acquire_user_lock(void);
+int release_user_lock(void);
+void print_queue(void);
 
 
 
