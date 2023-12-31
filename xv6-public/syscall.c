@@ -155,6 +155,15 @@ static int (*syscalls[])(void) = {
 };
 
 void
+init_num_syscalls(void){
+  for (int i = 0; i < ncpu ;i++){
+    cpus[i].executed_syscalls = 0;
+  }
+  executed_syscalls = 0;
+  __sync_synchronize();
+}
+
+void
 syscall(void)
 {
   int num;

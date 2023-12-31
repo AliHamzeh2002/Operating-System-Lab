@@ -7,6 +7,8 @@
 #include "x86.h"
 #include "elf.h"
 
+extern void init_num_syscalls();
+
 int
 exec(char *path, char **argv)
 {
@@ -101,6 +103,7 @@ exec(char *path, char **argv)
   curproc->tf->esp = sp;
   switchuvm(curproc);
   freevm(oldpgdir);
+  init_num_syscalls();
   return 0;
 
  bad:

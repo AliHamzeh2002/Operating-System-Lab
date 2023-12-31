@@ -191,11 +191,11 @@ sys_get_num_syscalls(void){
   int sum = 0;
   for (int i = 0; i < ncpu ;i++){
     sum += cpus[i].executed_syscalls;
-    cpus[i].executed_syscalls = 0;
+    //cpus[i].executed_syscalls = 0;
   }
   cprintf("shared: %d per: %d\n", executed_syscalls, sum);
-  executed_syscalls = 0;
-  __sync_synchronize();
+ // executed_syscalls = 0;
+  //__sync_synchronize();
   return sum;
 }
 
