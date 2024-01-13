@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "spinlock.h": "c",
+        "concepts": "c",
+        "type_traits": "c"
+    }
+}
