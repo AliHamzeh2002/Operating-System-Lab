@@ -32,6 +32,9 @@
 #define SYS_release_user_lock 31
 #define SYS_print_queue 32
 #define SYS_get_num_syscalls 33
+#define SYS_open_sharedmem 34
+#define SYS_close_sharedmem 35
+
 
 
 

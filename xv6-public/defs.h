@@ -164,6 +164,10 @@ int             acquirepriority(struct prioritylock *lk);
 int             releasepriority(struct prioritylock *lk);
 void            print_priority_queue(struct prioritylock *lk);
 
+// shared_mem.c
+void            init_shared_mem(void);
+char*           open_shared_mem(int);
+void            close_shared_mem(int);
 
 
 // string.c

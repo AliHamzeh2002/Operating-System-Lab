@@ -28,6 +28,7 @@ OBJS = \
 	uart.o\
 	vectors.o\
 	vm.o\
+	shared_mem.o\
 
 # Cross-compiling (e.g., on Mac OS X)
 # TOOLPREFIX = i386-jos-elf
@@ -195,6 +196,7 @@ UPROGS=\
 	_schedule_info\
 	_lock_test\
 	_get_num_syscalls\
+	_test_shared_mem\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

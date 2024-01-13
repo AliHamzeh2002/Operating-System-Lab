@@ -115,6 +115,8 @@ extern int sys_acquire_user_lock(void);
 extern int sys_release_user_lock(void);
 extern int sys_print_queue(void);
 extern int sys_get_num_syscalls(void);
+extern int sys_open_sharedmem(void);
+extern int sys_close_sharedmem(void);
 
 
 static int (*syscalls[])(void) = {
@@ -151,6 +153,8 @@ static int (*syscalls[])(void) = {
 [SYS_release_user_lock] sys_release_user_lock,
 [SYS_print_queue] sys_print_queue,
 [SYS_get_num_syscalls] sys_get_num_syscalls,
+[SYS_open_sharedmem] sys_open_sharedmem,
+[SYS_close_sharedmem] sys_close_sharedmem,
 
 };
 

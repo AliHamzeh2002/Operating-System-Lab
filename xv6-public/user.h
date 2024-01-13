@@ -35,8 +35,8 @@ int acquire_user_lock(void);
 int release_user_lock(void);
 void print_queue(void);
 int get_num_syscalls(void);
-
-
+char* open_sharedmem(int);
+void close_sharedmem(int);
 
 // ulib.c
 int stat(const char*, struct stat*);

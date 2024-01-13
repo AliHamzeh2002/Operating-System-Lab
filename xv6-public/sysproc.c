@@ -199,3 +199,18 @@ sys_get_num_syscalls(void){
   return sum;
 }
 
+char*
+sys_open_sharedmem(void){
+  int id;
+  if (argint(0, &id) < 0)
+    return 0;
+  return open_shared_mem(id);
+}
+
+void
+sys_close_sharedmem(void){
+  int id;
+  if (argint(0, &id) < 0)
+    return;
+  close_shared_mem(id);
+}

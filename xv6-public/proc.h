@@ -71,6 +71,7 @@ struct proc {
   char name[16];               // Process name (debugging)
   uint start_time;
   struct scheduling_info sched_info;
+  char* shm;
 };
 
 // Process memory is laid out contiguously, low addresses first:

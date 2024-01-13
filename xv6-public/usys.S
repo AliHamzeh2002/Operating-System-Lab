@@ -41,3 +41,5 @@ SYSCALL(acquire_user_lock);
 SYSCALL(release_user_lock);
 SYSCALL(print_queue);
 SYSCALL(get_num_syscalls);
+SYSCALL(open_sharedmem);
+SYSCALL(close_sharedmem);
