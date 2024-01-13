@@ -34,8 +34,6 @@ char*
 open_shared_mem(int id){
     struct proc* proc = myproc();
     pde_t *pgdir = proc->pgdir;
-    //uint shm = proc->shm;
-    //cprintf("shm: ")
     acquire(&shared_memory.lock);
     int index = id;
     if (shared_memory.table[index].num_of_refs == 0){
@@ -43,13 +41,15 @@ open_shared_mem(int id){
         memset(shared_memory.table[index].frame, 0, PGSIZE);
     }
     char* start_mem = (char*)PGROUNDUP(proc->sz);
+    //cprintf("start_mem: %d\n", start_mem);
+
     mappages(pgdir, start_mem, PGSIZE, V2P(shared_memory.table[index].frame), PTE_W|PTE_U);
     shared_memory.table[index].num_of_refs++;
+    shared_memory.table[index].id = id;
     proc->shm = start_mem;
 
     release(&shared_memory.lock);
     return start_mem;
-
 }
 
 void
@@ -66,8 +66,6 @@ close_shared_mem(int id){
     a = PGADDR(PDX(a) + 1, 0, 0) - PGSIZE;
     else if((*pte & PTE_P) != 0){
         uint pa = PTE_ADDR(*pte);
-        if(pa == 0)
-            panic("kfree");
         *pte = 0;
     }
     
@@ -76,8 +74,5 @@ close_shared_mem(int id){
         
     }
 
-
-        
-    
     release(&shared_memory.lock);
 }

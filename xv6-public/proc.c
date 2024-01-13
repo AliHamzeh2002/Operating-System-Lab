@@ -32,6 +32,7 @@ static void wakeup1(void *chan);
 void
 pinit(void)
 {
+  init_shared_mem();
   initlock(&ptable.lock, "ptable");
   initprioritylock(&userlock.pl, "user lock");
 }
