@@ -70,6 +70,7 @@ open_shared_mem(int id){
     shared_memory.table[index].num_of_refs++;
     shared_memory.table[index].id = id;
     proc->shm = start_mem;
+    proc->shm_id = id;
 
     release(&shared_memory.lock);
     return start_mem;
@@ -79,6 +80,9 @@ void
 close_shared_mem(int id){
     struct proc* proc = myproc();
     pde_t *pgdir = proc->pgdir;
+    if (proc->shm_id != id || proc->shm == 0){
+        return;
+    }
     acquire(&shared_memory.lock);
     int index = find_shared_page(id);
     shared_memory.table[index].num_of_refs--;
@@ -93,6 +97,7 @@ close_shared_mem(int id){
     }
 
     proc->shm = 0;
+    proc->shm_id = 0;
     
     if (shared_memory.table[index].num_of_refs == 0){
         kfree(shared_memory.table[index].frame);
