@@ -30,12 +30,35 @@ init_shared_mem(){
     release(&shared_memory.lock);
 }
 
+int
+find_shared_page(int id){
+    for (int i = 0; i < NUM_OF_SHARED_PAGES; i++){
+        if (shared_memory.table[i].id == id){
+            return i;
+        }
+    }
+    for (int i = 0; i < NUM_OF_SHARED_PAGES; i++){
+        if (shared_memory.table[i].num_of_refs == 0){
+            shared_memory.table[i].id = id;
+            return i;
+        }
+    }
+    return -1;
+}
+
 char*
 open_shared_mem(int id){
     struct proc* proc = myproc();
     pde_t *pgdir = proc->pgdir;
+    if (proc->shm != 0){
+        return 0;
+    }
     acquire(&shared_memory.lock);
-    int index = id;
+    int index = find_shared_page(id);
+    if (index == -1){
+        release(&shared_memory.lock);
+        return 0;
+    }
     if (shared_memory.table[index].num_of_refs == 0){
         shared_memory.table[index].frame = kalloc();
         memset(shared_memory.table[index].frame, 0, PGSIZE);
@@ -57,17 +80,19 @@ close_shared_mem(int id){
     struct proc* proc = myproc();
     pde_t *pgdir = proc->pgdir;
     acquire(&shared_memory.lock);
-    int index = id;
+    int index = find_shared_page(id);
     shared_memory.table[index].num_of_refs--;
 
+    //delete from proc's page table
     uint a = PGROUNDUP((uint)proc->shm);
     pte_t *pte = walkpgdir(pgdir, (char*)a, 0);
     if(!pte)
-    a = PGADDR(PDX(a) + 1, 0, 0) - PGSIZE;
+        a = PGADDR(PDX(a) + 1, 0, 0) - PGSIZE;
     else if((*pte & PTE_P) != 0){
-        uint pa = PTE_ADDR(*pte);
         *pte = 0;
     }
+
+    proc->shm = 0;
     
     if (shared_memory.table[index].num_of_refs == 0){
         kfree(shared_memory.table[index].frame);
